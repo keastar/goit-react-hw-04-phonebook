@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import shortid from 'shortid';
+import { nanoid } from 'nanoid';
 import Filter from './Filter';
 import Form from './Form';
 import ContactList from './ContactList';
@@ -25,7 +25,7 @@ export default function App() {
       alert('Already exist contact');
     } else {
       const contact = {
-        id: shortid.generate(),
+        id: nanoid(),
         name: name,
         number: number,
       };
