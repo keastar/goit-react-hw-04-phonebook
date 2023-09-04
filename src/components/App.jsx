@@ -1,16 +1,66 @@
-export const App = () => {
+import React, { useEffect, useState, useMemo } from 'react';
+import shortid from 'shortid';
+import Filter from './Filter';
+import Form from './Form';
+import ContactList from './ContactList';
+// import contacts from './todos.json';
+import Container from './Container';
+
+export default function App() {
+  const [contacts, setContacts] = useState(() => {
+    return JSON.parse(window.localStorage.getItem('contacts')) ?? [];
+  });
+  const [filter, setFilter] = useState('');
+
+  useEffect(() => {
+    window.localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
+
+  function formSubmitHandler({ name, number }) {
+    const found = contacts.find(
+      contact => contact.name.toLowerCase() === name.toLowerCase()
+    );
+
+    if (found) {
+      alert('Already exist contact');
+    } else {
+      const contact = {
+        id: shortid.generate(),
+        name: name,
+        number: number,
+      };
+      setContacts(prevContacts => [contact, ...prevContacts]);
+    }
+  }
+
+  // откидываем элемент, id которого совпадает с заявленным в (contactId)
+  function deleteContact(contactId) {
+    setContacts(contacts.filter(contact => contact.id !== contactId));
+  }
+
+  function changeFilter(event) {
+    setFilter(event.target.value);
+  }
+
+  const getVisibleContacts = useMemo(() => {
+    const normalizedFilter = filter.toLowerCase();
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(normalizedFilter)
+    );
+  }, [contacts, filter]);
+
+  //Готовое и вполненое задание по книги контактов, рабочее.
+
   return (
-    <div
-      style={{
-        height: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontSize: 40,
-        color: '#010101'
-      }}
-    >
-      React homework template
-    </div>
+    <>
+      <Container>
+        <Form onSubmit={formSubmitHandler} />
+        <Filter value={filter} onChange={changeFilter} />
+        <ContactList
+          contacts={getVisibleContacts}
+          ondeleteContact={deleteContact}
+        />
+      </Container>
+    </>
   );
-};
+}
